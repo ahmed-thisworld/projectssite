@@ -43,7 +43,7 @@
             try {
                  
                 const response = await fetch(`${apiUrl}?action=read`, {
-                    mode: 'cors'
+                    mode:  'no-cors'
                 });
                 const users = await response.json();
                 const userList = document.getElementById('userList');
