@@ -22,8 +22,10 @@
 
     <script>
         // URL to the PHP API file
-        const apiUrl = 'http://fahmed.wuaze.com/api.php';
-
+        
+        const httpUrl = 'http://fahmed.wuaze.com/api.php';
+        const apiUrl = `https://cors-anywhere.herokuapp.com/${httpUrl}`
+        
         // CREATE User (using GET request)
         async function createUser(name, email) {
             try {
