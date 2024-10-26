@@ -50,6 +50,7 @@ async function fetchUsers() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'read' })
         });
+        console.log(response)
         const users = await response.json();
         console.log("users:", users);
 
