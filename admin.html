@@ -47,9 +47,11 @@ async function fetchUsers() {
         const response = await fetch(apiUrl, {
             method: 'POST',
             mode : "no-cors",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'read' })
-        });
+             headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+      },
+        body: JSON.stringify({ action: 'read', name, filedata })
         console.log(response)
         const users = await response.json();
         console.log("users:", users);
