@@ -25,96 +25,108 @@
         
    
         const apiUrl =  'https://fahmed.wuaze.com/api.php';
-        
-        // CREATE User (using GET request)
-        async function createUser(name, email) {
-            try {
-                const response = await fetch(`${apiUrl}?action=create&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`);
-                const result = await response.json();
-                console.log(result.message);
-                fetchUsers();
-            } catch (error) {
-                console.error('Error creating user:', error);
-            }
-        }
-
-        // READ Users
-        async function fetchUsers() {
-            try {
-                 
-                const response = await fetch(`${apiUrl}?action=read`, {
-                    mode:  'no-cors'
-                });
-                console.log(response);
-               // const users = await response.json();
-                console.log("users : ", users)
-                const userList = document.getElementById('userList');
-                userList.innerHTML = '';
-                users.forEach(user => {
-                    const li = document.createElement('li');
-                    li.textContent = `${user.name} (${user.email}) `;
-                    li.innerHTML += `<button onclick="editUser(${user.id}, '${user.name}', '${user.filedata}')">Edit</button>`;
-                    li.innerHTML += `<button onclick="deleteUser(${user.id})">Delete</button>`;
-                    userList.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Error fetching users:', error);
-            }
-        }
-
-        // UPDATE User (using GET request)
-        async function updateUser(id, name, email) {
-            try {
-                const response = await fetch(`${apiUrl}?action=update&id=${id}&name=${encodeURIComponent(name)}&filedata=${encodeURIComponent(email)}`);
-                const result = await response.json();
-                console.log(result.message);
-                fetchUsers();
-            } catch (error) {
-                console.error('Error updating user:', error);
-            }
-        }
-
-        // DELETE User (using GET request)
-        async function deleteUser(id) {
-            try {
-                const response = await fetch(`${apiUrl}?action=delete&id=${id}`);
-                const result = await response.json();
-                console.log(result.message);
-                fetchUsers();
-            } catch (error) {
-                console.error('Error deleting user:', error);
-            }
-        }
-
-        // Handle form submission
-        document.getElementById('userForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const userId = document.getElementById('userId').value;
-            const userName = document.getElementById('userName').value;
-            const userEmail = document.getElementById('userEmail').value;
-
-            if (userId) {
-                // If userId exists, update the user
-                await updateUser(userId, userName, userEmail);
-            } else {
-                // Otherwise, create a new user
-                await createUser(userName, userEmail);
-            }
-
-            // Reset the form
-            document.getElementById('userForm').reset();
-            document.getElementById('userId').value = '';
+        // CREATE User (using POST request)
+async function createUser(name, filedata) {
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'create', name, filedata })
         });
-
-        // Populate the form for editing
-        function editUser(id, name, email) {
-            document.getElementById('userId').value = id;
-            document.getElementById('userName').value = name;
-            document.getElementById('userEmail').value = email;
-        }
-
-        // Initial fetch to display users
+        const result = await response.json();
+        console.log(result.message);
         fetchUsers();
-    </script>
+    } catch (error) {
+        console.error('Error creating user:', error);
+    }
+}
+
+// READ Users (using POST request)
+async function fetchUsers() {
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'read' })
+        });
+        const users = await response.json();
+        console.log("users:", users);
+
+        const userList = document.getElementById('userList');
+        userList.innerHTML = '';
+        users.forEach(user => {
+            const li = document.createElement('li');
+            li.textContent = `${user.name} (${user.filedata})`; // Changed to filedata
+            li.innerHTML += `<button onclick="editUser(${user.id}, '${user.name}', '${user.filedata}')">Edit</button>`;
+            li.innerHTML += `<button onclick="deleteUser(${user.id})">Delete</button>`;
+            userList.appendChild(li);
+        });
+    } catch (error) {
+        console.error('Error fetching users:', error);
+    }
+}
+
+// UPDATE User (using POST request)
+async function updateUser(id, name, filedata) {
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'update', id, name, filedata })
+        });
+        const result = await response.json();
+        console.log(result.message);
+        fetchUsers();
+    } catch (error) {
+        console.error('Error updating user:', error);
+    }
+}
+
+// DELETE User (using POST request)
+async function deleteUser(id) {
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'delete', id })
+        });
+        const result = await response.json();
+        console.log(result.message);
+        fetchUsers();
+    } catch (error) {
+        console.error('Error deleting user:', error);
+    }
+}
+
+// Handle form submission
+document.getElementById('userForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const userId = document.getElementById('userId').value;
+    const userName = document.getElementById('userName').value;
+    const userFiledata = document.getElementById('userEmail').value; // Renamed to userFiledata
+
+    if (userId) {
+        // If userId exists, update the user
+        await updateUser(userId, userName, userFiledata);
+    } else {
+        // Otherwise, create a new user
+        await createUser(userName, userFiledata);
+    }
+
+    // Reset the form
+    document.getElementById('userForm').reset();
+    document.getElementById('userId').value = '';
+});
+
+// Populate the form for editing
+function editUser(id, name, filedata) {
+    document.getElementById('userId').value = id;
+    document.getElementById('userName').value = name;
+    document.getElementById('userEmail').value = filedata; // Renamed to userFiledata
+}
+
+// Initial fetch to display users
+fetchUsers();
+    </script> 
 </body>
 </html>
