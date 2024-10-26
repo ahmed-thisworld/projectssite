@@ -49,8 +49,9 @@ async function fetchUsers() {
             mode : "no-cors",
              headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        body: JSON.stringify({ action: 'read', name, filedata })
+            'Accept': 'application/json'}
+            body: JSON.stringify({ action: 'read', name, filedata })
+          
       })
         
         console.log(response)
