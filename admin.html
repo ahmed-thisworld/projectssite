@@ -1,140 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD Operations with PHP API</title>
-</head>
-<body>
-    <h1 class="main-heading">CRUD Operations with PHP API</h1>
+< !DOCTYPE html>
+    <html lang="en">
 
-    <!-- Form to create or update a user -->
-    <form id="userForm">
-        <input type="hidden" id="userId" />
-        <label>Name: <input type="text" id="userName" required /></label><br>
-        <label>Email: <input type="email" id="userEmail" required /></label><br>
-        <button type="submit">Save User</button>
-    </form>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CRUD Operations with PHP API</title>
+    </head>
 
-    <h2>User List</h2>
-    <button onclick="fetchUsers()">Refresh User List</button>
-    <ul id="userList"></ul>
+    <body>
+        <h1 class="main-heading">CRUD Operations with PHP API</h1>
 
-    <script>
-        // URL to the PHP API file
-        
-   
-        const apiUrl =  'https://fahmed.wuaze.com/api.php';
-        // CREATE User (using POST request)
-async function createUser(name, filedata) {
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'create', name, filedata })
-        });
-        const result = await response.json();
-        console.log(result.message);
-        fetchUsers();
-    } catch (error) {
-        console.error('Error creating user:', error);
-    }
-}
+        <!-- Form to create or update a user -->
+        <form id="userForm">
+            <input type="hidden" id="userId" />
+            <label>Name: <input type="text" id="userName" required /></label><br>
+            <label>Email: <input type="email" id="userEmail" required /></label><br>
+            <button type="submit">Save User</button>
+        </form>
 
-// READ Users (using POST request)
-async function fetchUsers() {
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ action: 'read' })
+        <h2>User List</h2>
+        <button onclick="fetchUsers()">Refresh User List</button>
+        <ul id="userList"></ul>
+
+        <script>
+            // URL to the PHP API file
+
+
+            const apiUrl = 'https://fahmed.wuaze.com/api.php';
+
+
+            // READ Users (using POST request)
+            async function fetchUsers() {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ action: 'read' })
+
+                    })
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    console.log(response)
+                    const users = await response.json();
+                    console.log("users:", users);
+
+                    const userList = document.getElementById('userList');
+                    userList.innerHTML = '';
+                    users.forEach(user => {
+                        const li = document.createElement('li');
+                        li.textContent = `${user.name} (${user.filedata})`; // Changed to filedata
+                        li.innerHTML += `<button onclick="editUser(${user.id}, '${user.name}', '${user.filedata}')">Edit</button>`;
+                        li.innerHTML += `<button onclick="deleteUser(${user.id})">Delete</button>`;
+                        userList.appendChild(li);
+                    });
+                } catch (error) {
+                    console.error('Error fetching users:', error);
+                }
+            }
+
           
-      })
-        if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-}
-        console.log(response)
-        const users = await response.json();
-        console.log("users:", users);
 
-        const userList = document.getElementById('userList');
-        userList.innerHTML = '';
-        users.forEach(user => {
-            const li = document.createElement('li');
-            li.textContent = `${user.name} (${user.filedata})`; // Changed to filedata
-            li.innerHTML += `<button onclick="editUser(${user.id}, '${user.name}', '${user.filedata}')">Edit</button>`;
-            li.innerHTML += `<button onclick="deleteUser(${user.id})">Delete</button>`;
-            userList.appendChild(li);
-        });
-    } catch (error) {
-        console.error('Error fetching users:', error);
-    }
-}
+            
+            // Handle form submission
+            document.getElementById('userForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const userId = document.getElementById('userId').value;
+                const userName = document.getElementById('userName').value;
+                const userFiledata = document.getElementById('userEmail').value; // Renamed to userFiledata
 
-// UPDATE User (using POST request)
-async function updateUser(id, name, filedata) {
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'update', id, name, filedata })
-        });
-        const result = await response.json();
-        console.log(result.message);
-        fetchUsers();
-    } catch (error) {
-        console.error('Error updating user:', error);
-    }
-}
+                if (userId) {
+                    // If userId exists, update the user
+                    await updateUser(userId, userName, userFiledata);
+                } else {
+                    // Otherwise, create a new user
+                    await createUser(userName, userFiledata);
+                }
 
-// DELETE User (using POST request)
-async function deleteUser(id) {
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'delete', id })
-        });
-        const result = await response.json();
-        console.log(result.message);
-        fetchUsers();
-    } catch (error) {
-        console.error('Error deleting user:', error);
-    }
-}
+                // Reset the form
+                document.getElementById('userForm').reset();
+                document.getElementById('userId').value = '';
+            });
+ 
 
-// Handle form submission
-document.getElementById('userForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const userId = document.getElementById('userId').value;
-    const userName = document.getElementById('userName').value;
-    const userFiledata = document.getElementById('userEmail').value; // Renamed to userFiledata
+            // Initial fetch to display users
+            fetchUsers();
+        </script>
+    </body>
 
-    if (userId) {
-        // If userId exists, update the user
-        await updateUser(userId, userName, userFiledata);
-    } else {
-        // Otherwise, create a new user
-        await createUser(userName, userFiledata);
-    }
-
-    // Reset the form
-    document.getElementById('userForm').reset();
-    document.getElementById('userId').value = '';
-});
-
-// Populate the form for editing
-function editUser(id, name, filedata) {
-    document.getElementById('userId').value = id;
-    document.getElementById('userName').value = name;
-    document.getElementById('userEmail').value = filedata; // Renamed to userFiledata
-}
-
-// Initial fetch to display users
-fetchUsers();
-    </script> 
-</body>
-</html>
+    </html>
