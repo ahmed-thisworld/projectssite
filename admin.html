@@ -46,12 +46,13 @@
                     mode:  'no-cors'
                 });
                 const users = await response.json();
+                console.log("users : ", users)
                 const userList = document.getElementById('userList');
                 userList.innerHTML = '';
                 users.forEach(user => {
                     const li = document.createElement('li');
                     li.textContent = `${user.name} (${user.email}) `;
-                    li.innerHTML += `<button onclick="editUser(${user.id}, '${user.name}', '${user.email}')">Edit</button>`;
+                    li.innerHTML += `<button onclick="editUser(${user.id}, '${user.name}', '${user.filedata}')">Edit</button>`;
                     li.innerHTML += `<button onclick="deleteUser(${user.id})">Delete</button>`;
                     userList.appendChild(li);
                 });
@@ -63,7 +64,7 @@
         // UPDATE User (using GET request)
         async function updateUser(id, name, email) {
             try {
-                const response = await fetch(`${apiUrl}?action=update&id=${id}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`);
+                const response = await fetch(`${apiUrl}?action=update&id=${id}&name=${encodeURIComponent(name)}&filedata=${encodeURIComponent(email)}`);
                 const result = await response.json();
                 console.log(result.message);
                 fetchUsers();
